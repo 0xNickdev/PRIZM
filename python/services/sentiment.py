@@ -182,7 +182,7 @@ class SentimentService:
             results = []
             conn = psycopg2.connect(db_url)
             cursor = conn.cursor()
-            cache_ttl_minutes = 10  # Cache valid for 10 minutes
+            cache_ttl_minutes = 120  # Cache valid for 2 hours (to save Twitter API costs)
             
             for idx, symbol in enumerate(symbols):
                 # Check cache first
@@ -205,10 +205,10 @@ class SentimentService:
                     continue
                 
                 # Cache miss - fetch from Twitter API
-                logger.info(f"Cache miss - fetching fresh data for ${symbol}")
+                logger.warning(f"⚠️  TWITTER API CALL for ${symbol} - this costs money!")
                 
-                # Vary max_results to get different mention counts (30-100)
-                max_results = random.randint(40, 100) if idx < 3 else random.randint(20, 80)
+                # Reduced to 10 tweets to minimize API costs
+                max_results = 10
                 
                 tweets_now = await self._fetch_tweets(f"${symbol}", max_results=max_results)
                 logger.info(f"Found {len(tweets_now)} tweets for ${symbol}")

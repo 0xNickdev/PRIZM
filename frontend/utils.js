@@ -41,8 +41,33 @@ function fmt(n, d = 2) {
 function pct(n) { return n == null ? '—' : (n >= 0 ? '+' : '') + n.toFixed(2) + '%'; }
 function pc(n) { return n >= 0 ? 'var(--g)' : 'var(--r)'; }
 
+// ── Crypto icon from JSDelivr CDN (free, no CoinGecko) ──
+function getCryptoIcon(symbol) {
+  if (!symbol) return '';
+  const s = symbol.toLowerCase();
+  // Using cryptocurrency-icons via JSDelivr CDN
+  return `https://cdn.jsdelivr.net/npm/cryptocurrency-icons@0.18.1/svg/color/${s}.svg`;
+}
+
+// ── Fallback for missing crypto icons ──
+function showIconFallback(img, symbol) {
+  // Hide the failed image
+  img.style.display = 'none';
+  // Show first letter of symbol as fallback
+  const parent = img.parentElement;
+  parent.style.background = 'linear-gradient(135deg, rgba(100,120,255,.2) 0%, rgba(0,255,163,.15) 100%)';
+  parent.style.display = 'flex';
+  parent.style.alignItems = 'center';
+  parent.style.justifyContent = 'center';
+  parent.style.fontSize = '12px';
+  parent.style.fontWeight = '600';
+  parent.style.color = 'rgba(255,255,255,.8)';
+  parent.textContent = symbol ? symbol[0].toUpperCase() : '?';
+}
+
 // ── Image proxy (for loading images via backend) ──
 function proxyImg(url) {
+  // Deprecated: use getCryptoIcon instead
   if (!url) return '';
   // If CoinGecko URL, proxy through backend
   if (url.includes('coin-images.coingecko.com')) {
