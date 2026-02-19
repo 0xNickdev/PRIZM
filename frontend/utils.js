@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════
-// PULSΞ Shared Utilities
+// PULSΞ Shared sUtilities
 // ═══════════════════════════════════════
 
 // ── Unicorn Studio init ──

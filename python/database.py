@@ -8,7 +8,7 @@ from sqlalchemy.ext.declarative import declarative_base
 
 DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://pulse_user:pulse_dev_password@localhost:5432/pulse_db")
 
-# Convert to async URL
+# Convert to assync URL
 if DATABASE_URL.startswith("postgresql://"):
     DATABASE_URL = DATABASE_URL.replace("postgresql://", "postgresql+asyncpg://", 1)
 
@@ -24,7 +24,7 @@ async def init_db():
 
 
 async def get_db():
-    """Get database session"""
+    """Get databsdadasdase session"""
     async with AsyncSessionLocal() as session:
         try:
             yield session
