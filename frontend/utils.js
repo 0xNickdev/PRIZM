@@ -2,16 +2,8 @@
 // PULSΞ Shared Utilities
 // ═══════════════════════════════════════
 
-// ── Unicorn Studio init (DISABLED for performance) ──
+// ── Unicorn Studio init ──
 function initUnicorn() {
-  // Simplified background without 3D for better FPS
-  const bg = document.getElementById('ubg');
-  if (bg) {
-    bg.innerHTML = '';
-    bg.style.background = 'radial-gradient(ellipse at 50% 20%, rgba(100,120,255,.15) 0%, rgba(0,0,0,0) 50%), radial-gradient(ellipse at 80% 70%, rgba(0,255,163,.08) 0%, rgba(0,0,0,0) 50%), radial-gradient(ellipse at 20% 80%, rgba(255,68,102,.08) 0%, rgba(0,0,0,0) 50%), linear-gradient(180deg, #000000 0%, #0a0a0e 100%)';
-  }
-  // To enable 3D background, uncomment:
-  /*
   const u = window.UnicornStudio;
   if (u && u.init) {
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => u.init());
@@ -26,7 +18,6 @@ function initUnicorn() {
     };
     (document.head || document.body).appendChild(s);
   }
-  */
 }
 
 // ── Formatters ──
