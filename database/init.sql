@@ -222,6 +222,26 @@ CREATE TRIGGER update_holdings_updated_at BEFORE UPDATE ON holdings
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
 -- ══════════════════════════════════════════════════════════
+-- CASHTAG CACHE
+-- Cache Twitter cashtag metrics to reduce API calls
+-- ══════════════════════════════════════════════════════════
+CREATE TABLE cashtag_cache (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    symbol VARCHAR(20) NOT NULL,
+    mentions INTEGER NOT NULL DEFAULT 0,
+    sentiment INTEGER NOT NULL DEFAULT 50,
+    velocity VARCHAR(20) NOT NULL DEFAULT '+0%',
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE UNIQUE INDEX idx_cashtag_symbol ON cashtag_cache(symbol);
+CREATE INDEX idx_cashtag_updated ON cashtag_cache(updated_at DESC);
+
+CREATE TRIGGER update_cashtag_cache_updated_at BEFORE UPDATE ON cashtag_cache
+    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+-- ══════════════════════════════════════════════════════════
 -- INITIAL DATA
 -- ══════════════════════════════════════════════════════════
 

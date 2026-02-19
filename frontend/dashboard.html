@@ -4,6 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>PULSΞ — Dashboard</title>
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600&family=Syne:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@300;400;500&display=swap" rel="stylesheet">
@@ -71,7 +74,8 @@
     <div class="tb-l"><div class="tb-logo">PULSΞ</div><div class="tb-st">Agent Online</div></div>
     <div class="tb-r">
       <div class="tb-t" id="clock"></div>
-      <a class="btn btn-n" href="agents.html">Agents Lab</a>
+      <a class="btn btn-n" href="https://x.com/CashtagAgent" target="_blank" style="margin-right:8px">Twitter</a>
+      <a class="btn btn-n" href="agents">Agents Lab</a>
     </div>
   </header>
   <!-- Sidebar -->
@@ -209,8 +213,8 @@ function rMK(m) {
   
   m.innerHTML = `<div class="st stg s1">All Markets — Top ${data.length}</div>
   <div class="tw stg s2"><div class="th"><div class="tt">Full Market Data <span class="refresh-timer" style="color:var(--w20);font-size:8px;margin-left:8px">—</span></div></div>
-  ${loadingMsg || `<table><thead><tr><th>#</th><th>Asset</th><th style="${thStyle('current_price')}">Price${sortIcon('current_price')}</th><th style="${thStyle('price_change_percentage_1h_in_currency')}">1h${sortIcon('price_change_percentage_1h_in_currency')}</th><th style="${thStyle('price_change_percentage_24h_in_currency')}">24h${sortIcon('price_change_percentage_24h_in_currency')}</th><th style="${thStyle('price_change_percentage_7d_in_currency')}">7d${sortIcon('price_change_percentage_7d_in_currency')}</th><th style="${thStyle('total_volume')}">Volume${sortIcon('total_volume')}</th><th style="${thStyle('market_cap')}">MCap${sortIcon('market_cap')}</th><th style="${thStyle('ath_change_percentage')}">ATH Δ${sortIcon('ath_change_percentage')}</th><th></th></tr></thead><tbody>
-  ${data.map((c, i) => `<tr><td style="color:var(--w20)">${i + 1}</td><td><div class="tc"><div class="ti"><img src="${proxyImg(c.image)}" alt="${c.symbol}" onerror="this.style.display='none';this.parentElement.style.background='var(--w12)'"></div><span class="ts">${c.symbol.toUpperCase()}</span><span class="tn" title="${c.name}">${c.name}</span></div></td><td style="color:#fff;font-weight:500">${fmt(c.current_price)}</td><td style="color:${pc(c.price_change_percentage_1h_in_currency)}">${pct(c.price_change_percentage_1h_in_currency)}</td><td style="color:${pc(c.price_change_percentage_24h_in_currency)}">${pct(c.price_change_percentage_24h_in_currency)}</td><td style="color:${pc(c.price_change_percentage_7d_in_currency)}">${pct(c.price_change_percentage_7d_in_currency)}</td><td>${fmt(c.total_volume)}</td><td>${fmt(c.market_cap)}</td><td style="color:var(--r)">${pct(c.ath_change_percentage)}</td><td><button class="btn btn-a" style="height:24px;font-size:7px" onclick="qA('Risk $${c.symbol.toUpperCase()}')">Risk</button></td></tr>`).join('')}
+  ${loadingMsg || `<table><thead><tr><th>#</th><th>Asset</th><th style="${thStyle('current_price')}">Price${sortIcon('current_price')}</th><th style="${thStyle('price_change_percentage_24h_in_currency')}">24h${sortIcon('price_change_percentage_24h_in_currency')}</th><th style="${thStyle('price_change_percentage_7d_in_currency')}">7d${sortIcon('price_change_percentage_7d_in_currency')}</th><th style="${thStyle('total_volume')}">Volume${sortIcon('total_volume')}</th><th style="${thStyle('market_cap')}">MCap${sortIcon('market_cap')}</th><th></th></tr></thead><tbody>
+  ${data.map((c, i) => `<tr><td style="color:var(--w20)">${i + 1}</td><td><div class="tc"><div class="ti"><img src="${proxyImg(c.image)}" alt="${c.symbol}" onerror="this.style.display='none';this.parentElement.style.background='var(--w12)'"></div><span class="ts">${c.symbol.toUpperCase()}</span><span class="tn" title="${c.name}">${c.name}</span></div></td><td style="color:#fff;font-weight:500">${fmt(c.current_price)}</td><td style="color:${pc(c.price_change_percentage_24h_in_currency)}">${pct(c.price_change_percentage_24h_in_currency)}</td><td style="color:${pc(c.price_change_percentage_7d_in_currency)}">${pct(c.price_change_percentage_7d_in_currency)}</td><td>${fmt(c.total_volume)}</td><td>${fmt(c.market_cap)}</td><td><button class="btn btn-a" style="height:24px;font-size:7px" onclick="qA('Risk $${c.symbol.toUpperCase()}')">Risk</button></td></tr>`).join('')}
   </tbody></table>`}</div>`;
 }
 
@@ -218,7 +222,7 @@ async function rSG(m) {
   // Try to load cached signals first
   m.innerHTML = `<div class="st stg s1">Trading Signals</div>
   <div class="stg s2" style="margin-bottom:16px;font-size:11px;color:var(--w45);line-height:1.6">AI-powered trading signals with entry/exit strategies based on market momentum, volume analysis, and sentiment data.</div>
-  <div style="text-align:center;padding:40px;color:var(--w45)">📊 Loading cached signals...</div>`;
+  <div style="text-align:center;padding:40px;color:var(--w45)">Loading cached signals...</div>`;
   
   try {
     // First, try to get latest cached signals
@@ -230,7 +234,7 @@ async function rSG(m) {
       m.innerHTML = `<div class="st stg s1">Trading Signals</div>
       <div class="stg s2" style="margin-bottom:16px;font-size:11px;color:var(--w45);line-height:1.6">AI-powered trading signals with entry/exit strategies. Generate fresh signals based on current market data.</div>
       <div style="text-align:center;padding:40px">
-        <button class="btn btn-l" style="background:rgba(0,255,163,.08);border:1px solid rgba(0,255,163,.3);color:var(--g);padding:12px 32px;font-size:11px;letter-spacing:2px;cursor:pointer" onclick="genSG()">🤖 Generate New Signals</button>
+        <button class="btn btn-l" style="background:rgba(0,255,163,.08);border:1px solid rgba(0,255,163,.3);color:var(--g);padding:12px 32px;font-size:11px;letter-spacing:2px;cursor:pointer" onclick="genSG()">Generate New Signals</button>
         <div style="margin-top:16px;font-size:10px;color:var(--w20)">No cached signals available</div>
       </div>`;
       return;
@@ -241,7 +245,7 @@ async function rSG(m) {
     console.error('Failed to load signals:', e);
     m.innerHTML = `<div class="st stg s1">Trading Signals</div>
     <div class="stg s2" style="margin-bottom:16px;font-size:11px;color:var(--w45);line-height:1.6">AI-powered trading signals with entry/exit strategies.</div>
-    <div style="text-align:center;padding:40px;color:var(--w45)">⚠️ Failed to load signals. Please try again.</div>`;
+    <div style="text-align:center;padding:40px;color:var(--w45)">Failed to load signals. Please try again.</div>`;
   }
 }
 
@@ -249,7 +253,7 @@ async function genSG() {
   const m = document.getElementById('mc');
   m.innerHTML = `<div class="st stg s1">Trading Signals</div>
   <div class="stg s2" style="margin-bottom:16px;font-size:11px;color:var(--w45);line-height:1.6">Generating fresh AI signals...</div>
-  <div style="text-align:center;padding:40px;color:var(--w45)">🤖 Analyzing market data...</div>`;
+  <div style="text-align:center;padding:40px;color:var(--w45)">Analyzing market data...</div>`;
   
   try {
     const signals = await API.signals(md);
@@ -265,7 +269,7 @@ async function genSG() {
     console.error('Failed to generate signals:', e);
     m.innerHTML = `<div class="st stg s1">Trading Signals</div>
     <div class="stg s2" style="margin-bottom:16px;font-size:11px;color:var(--w45);line-height:1.6">AI-powered trading signals with entry/exit strategies.</div>
-    <div style="text-align:center;padding:40px;color:var(--w45)">⚠️ Failed to generate signals. Please try again.</div>`;
+    <div style="text-align:center;padding:40px;color:var(--w45)">Failed to generate signals. Please try again.</div>`;
   }
 }
 
@@ -274,14 +278,14 @@ function displaySignals(signals, container, isCached = false) {
     BUY: { badge: 'bu', label: 'BUY', icon: '▲' },
     SELL: { badge: 'be', label: 'SELL', icon: '▼' },
     HOLD: { badge: 'ca', label: 'HOLD', icon: '◆' },
-    CLOSE: { badge: 'ca', label: 'CLOSE', icon: '✕' }
+    CLOSE: { badge: 'ca', label: 'CLOSE', icon: 'X' }
   };
   
   const confidenceColor = (conf) => conf >= 75 ? 'var(--g)' : conf >= 50 ? 'var(--a)' : 'var(--w45)';
   
   const cacheInfo = isCached ? `<div style="font-size:10px;color:var(--w20);display:flex;align-items:center;gap:6px;margin-bottom:12px">
     <span style="width:6px;height:6px;background:var(--c);border-radius:50%;box-shadow:0 0 6px var(--c)"></span>
-    Cached signals from latest generation · <button class="btn btn-l" style="background:none;border:1px solid var(--w8);color:var(--w45);padding:6px 16px;font-size:9px;letter-spacing:1.5px;cursor:pointer" onclick="genSG()">🔄 Generate Fresh</button>
+    Cached signals from latest generation · <button class="btn btn-l" style="background:none;border:1px solid var(--w8);color:var(--w45);padding:6px 16px;font-size:9px;letter-spacing:1.5px;cursor:pointer" onclick="genSG()">Generate Fresh</button>
   </div>` : `<div style="font-size:10px;color:var(--g);display:flex;align-items:center;gap:6px;margin-bottom:12px">
     <span style="width:6px;height:6px;background:var(--g);border-radius:50%;box-shadow:0 0 6px var(--g)"></span>
     Freshly generated signals
@@ -324,7 +328,7 @@ async function rCS(m) {
     const errorMsg = cashtagData?.message || 'Twitter API not configured or no data available';
     m.innerHTML = `<div class="st stg s1">Trending Cashtags</div>
     <div class="stg s2" style="margin-bottom:18px;font-size:11px;color:var(--w45);line-height:1.6">Real-time $CASHTAG tracking from Twitter API.</div>
-    <div style="text-align:center;padding:40px;color:var(--w45)">⚠️ ${errorMsg}</div>
+    <div style="text-align:center;padding:40px;color:var(--w45)">${errorMsg}</div>
     <div style="text-align:center;padding:10px 40px;font-size:9px;color:var(--w20)">Check Twitter Bearer Token in .env file or wait for API access approval.</div>`;
     return;
   }
@@ -405,7 +409,7 @@ function qA(t) { document.getElementById('aI').value = t; send(); }
 function addMsg(t, r) {
   const c = document.getElementById('aM'), d = document.createElement('div'); d.className = `msg msg-${r === 'a' ? 'a' : 'u'}`;
   let f = t; if (r === 'a') f = t.replace(/\*\*(.*?)\*\*/g, '<strong style="color:#fff">$1</strong>').replace(/◆/g, '<span style="color:var(--g);font-size:8px">◆</span>').replace(/(\$[A-Z]{2,10})/g, '<span class="sigtk" onclick="qA(\'Analysis $1\')">$1</span>').replace(/\n/g, '<br>');
-  d.innerHTML = `<div class="mb">${f}</div><div class="mm">${r === 'a' ? 'PULSΞ Agent' : 'You'} · ${new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false })}</div>`;
+  d.innerHTML = `<div class="mb">${f}</div><div class="mm">${r === 'a' ? 'PULSΞ Agent' : 'You'} · ${new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'UTC' })} UTC</div>`;
   c.appendChild(d); 
   setTimeout(() => { c.scrollTop = c.scrollHeight; }, 0);
   setTimeout(() => { c.scrollTop = c.scrollHeight; }, 100);

@@ -56,8 +56,8 @@ function proxyImg(url) {
 function startClock(el) {
   function tick() {
     const n = new Date();
-    el.textContent = n.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) + ' · ' +
-      n.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
+    el.textContent = n.toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: 'UTC' }) + ' · ' +
+      n.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'UTC' }) + ' UTC';
   }
   tick(); setInterval(tick, 1000);
 }
@@ -85,12 +85,12 @@ function closeProfileOnClickOut() {
 
 async function doLogout() {
   await API.logout();
-  window.location.href = 'index.html';
+  window.location.href = '/';
 }
 
 // ── Auth guard ──
 function requireAuth() {
-  if (!API.isLoggedIn()) { window.location.href = 'index.html'; return false; }
+  if (!API.isLoggedIn()) { window.location.href = '/'; return false; }
   return true;
 }
 

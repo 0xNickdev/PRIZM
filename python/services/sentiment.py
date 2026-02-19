@@ -161,29 +161,56 @@ class SentimentService:
     async def get_cashtag_metrics(self, symbols: list[str]):
         """
         Get cashtag metrics for multiple symbols: mentions, velocity, sentiment
+        Uses database cache to reduce API calls
         """
         import logging
         import random
+        import psycopg2
+        from datetime import datetime, timedelta
         logger = logging.getLogger(__name__)
         
         if not self.twitter_bearer:
             logger.error("Twitter API key not configured")
             return {"status": "error", "message": "Twitter API key not configured", "data": []}
         
-        logger.info(f"Fetching real Twitter data for {len(symbols)} symbols")
+        logger.info(f"Fetching cashtag metrics for {len(symbols)} symbols")
+        
+        # Get database connection
+        db_url = os.getenv("DATABASE_URL", "postgresql://pulse_user:pulse_dev_password@postgres:5432/pulse_db")
         
         try:
             results = []
+            conn = psycopg2.connect(db_url)
+            cursor = conn.cursor()
+            cache_ttl_minutes = 10  # Cache valid for 10 minutes
             
             for idx, symbol in enumerate(symbols):
-                logger.info(f"Fetching tweets for ${symbol}")
+                # Check cache first
+                cache_query = """
+                    SELECT symbol, mentions, sentiment, velocity, updated_at 
+                    FROM cashtag_cache 
+                    WHERE symbol = %s AND updated_at > NOW() - INTERVAL '%s minutes'
+                """
+                cursor.execute(cache_query, (symbol, cache_ttl_minutes))
+                cached = cursor.fetchone()
+                
+                if cached:
+                    logger.info(f"Using cached data for ${symbol}")
+                    results.append({
+                        "symbol": cached[0],
+                        "mentions": cached[1],
+                        "sentiment": cached[2],
+                        "velocity": cached[3]
+                    })
+                    continue
+                
+                # Cache miss - fetch from Twitter API
+                logger.info(f"Cache miss - fetching fresh data for ${symbol}")
                 
                 # Vary max_results to get different mention counts (30-100)
-                # Popular coins get more results
                 max_results = random.randint(40, 100) if idx < 3 else random.randint(20, 80)
                 
                 tweets_now = await self._fetch_tweets(f"${symbol}", max_results=max_results)
-                
                 logger.info(f"Found {len(tweets_now)} tweets for ${symbol}")
                 
                 mentions_count = len(tweets_now)
@@ -199,25 +226,42 @@ class SentimentService:
                 sentiment_score = max(0, min(100, 50 + sentiment_data.get("sentiment_score", 0) / 2))
                 
                 # Velocity: simulate historical baseline with variation
-                # Use symbol hash for consistent but varied baseline (30-70)
                 baseline = 40 + (hash(symbol) % 40)
                 velocity_pct = ((mentions_count - baseline) / baseline * 100)
-                
-                # Add small random variation (-5% to +5%)
                 velocity_pct += random.uniform(-5, 5)
-                
                 velocity_str = f"+{int(velocity_pct)}%" if velocity_pct > 0 else f"{int(velocity_pct)}%"
                 
-                results.append({
+                result_data = {
                     "symbol": symbol,
                     "mentions": mentions_count,
                     "sentiment": round(sentiment_score),
                     "velocity": velocity_str
-                })
+                }
+                results.append(result_data)
+                
+                # Save to cache (upsert)
+                upsert_query = """
+                    INSERT INTO cashtag_cache (symbol, mentions, sentiment, velocity, updated_at)
+                    VALUES (%s, %s, %s, %s, NOW())
+                    ON CONFLICT (symbol) 
+                    DO UPDATE SET 
+                        mentions = EXCLUDED.mentions,
+                        sentiment = EXCLUDED.sentiment,
+                        velocity = EXCLUDED.velocity,
+                        updated_at = NOW()
+                """
+                cursor.execute(upsert_query, (symbol, mentions_count, round(sentiment_score), velocity_str))
+                conn.commit()
+                logger.info(f"Cached data for ${symbol}")
+            
+            cursor.close()
+            conn.close()
             
             logger.info(f"Successfully fetched cashtag data for {len(results)} symbols")
             return {"status": "ok", "data": results}
             
         except Exception as e:
             logger.error(f"Error fetching cashtag metrics: {str(e)}")
+            import traceback
+            logger.error(traceback.format_exc())
             return {"status": "error", "message": str(e), "data": []}

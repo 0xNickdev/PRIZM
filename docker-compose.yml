@@ -65,6 +65,7 @@ services:
     volumes:
       - ./python:/app
       - ./frontend:/frontend
+      - ./images:/images
       - signals_data:/app/data
     depends_on:
       postgres:

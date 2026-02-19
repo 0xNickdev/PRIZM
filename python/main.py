@@ -115,6 +115,11 @@ frontend_path = Path("/frontend")
 if frontend_path.exists():
     app.mount("/static", StaticFiles(directory="/frontend"), name="static")
 
+# Mount images directory for favicons
+images_path = Path("/images")
+if images_path.exists():
+    app.mount("/images", StaticFiles(directory="/images"), name="images")
+
 # Include routers
 app.include_router(market_router)
 app.include_router(agent_router)
