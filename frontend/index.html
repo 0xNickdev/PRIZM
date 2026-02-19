@@ -26,8 +26,13 @@
     .err{font-family:var(--fm);font-size:11px;color:var(--r);display:none}.err.show{display:block}
     .ok{font-family:var(--fm);font-size:11px;color:var(--g);display:none;text-align:center}.ok.show{display:block}
     .btns{display:flex;flex-direction:column;align-items:center;gap:14px;width:320px}.btns.hide{display:none}
-    .bm{position:fixed;bottom:32px;left:50%;transform:translateX(-50%);z-index:10;font-family:var(--fm);font-size:10px;letter-spacing:3px;color:rgba(255,255,255,.12);text-transform:uppercase;opacity:0;animation:fI 2s ease 2s forwards}
-    @media(max-width:768px){.logo{font-size:40px;letter-spacing:10px}.tag{font-size:14px;letter-spacing:3px;margin-bottom:48px;padding:0 20px;text-align:center}.auth-btn,.ef,.btns,.dv{width:280px}}
+    .bm{position:fixed;bottom:32px;left:0;right:0;z-index:10;display:flex;align-items:center;justify-content:center;gap:20px;opacity:0;animation:fI 2s ease 2s forwards}
+    .bm span{font-family:var(--fm);font-size:10px;letter-spacing:3px;color:rgba(255,255,255,.12);text-transform:uppercase}
+    .tw{display:flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);transition:all .3s;cursor:pointer;text-decoration:none}
+    .tw:hover{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.15)}
+    .tw svg{width:16px;height:16px;fill:rgba(255,255,255,.4);transition:fill .3s}
+    .tw:hover svg{fill:rgba(255,255,255,.7)}
+    @media(max-width:768px){.logo{font-size:40px;letter-spacing:10px}.tag{font-size:14px;letter-spacing:3px;margin-bottom:48px;padding:0 20px;text-align:center}.auth-btn,.ef,.btns,.dv{width:280px}.bm{bottom:20px;gap:16px}.bm span{font-size:9px;letter-spacing:2px}.tw{width:28px;height:28px}.tw svg{width:14px;height:14px}}
   </style>
 </head>
 <body>
@@ -36,7 +41,7 @@
   <div class="logo">PULSΞ</div>
   <div class="tag">The market feels. We read.</div>
   <div class="auth">
-    <button class="btn auth-btn" onclick="window.location.href='dashboard'">
+    <button class="btn auth-btn" onclick="window.location.href='/dashboard'">
       <svg viewBox="0 0 24 24" style="width:20px;height:20px;fill:currentColor">
         <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm-9 3h2v2h-2V7zm0 4h2v6h-2v-6zM8 7h2v2H8V7zm0 4h2v6H8v-6zM4 7h2v2H4V7zm0 4h2v6H4v-6zm12 6h-2v-2h2v2zm0-4h-2v-2h2v2zm0-4h-2V7h2v2zm4 8h-2v-2h2v2zm0-4h-2v-2h2v2zm0-4h-2V7h2v2z"/>
       </svg>
@@ -44,7 +49,14 @@
     </button>
   </div>
 </div>
-<div class="bm">© 2026 PULSΞ</div>
+<div class="bm">
+  <span>© 2026 PULSΞ</span>
+  <a href="https://twitter.com" target="_blank" class="tw" aria-label="Twitter">
+    <svg viewBox="0 0 24 24">
+      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+    </svg>
+  </a>
+</div>
 
 <script src="config.js"></script>
 <script src="api.js"></script>
