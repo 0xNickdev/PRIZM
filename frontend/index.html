@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PULSΞ</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600&family=Syne:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .cnt{position:relative;z-index:10;width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none}
+    .logo{font-family:var(--fd);font-weight:800;font-size:72px;letter-spacing:18px;color:#fff;text-indent:18px;margin-bottom:20px;opacity:0;animation:rU 1.2s cubic-bezier(.16,1,.3,1) .6s forwards}
+    .tag{font-family:var(--fs);font-weight:300;font-size:18px;letter-spacing:4px;color:var(--w45);text-transform:uppercase;margin-bottom:64px;opacity:0;animation:rU 1.2s cubic-bezier(.16,1,.3,1) .9s forwards}
+    .auth{display:flex;flex-direction:column;align-items:center;gap:14px;pointer-events:auto;margin-top:300px;opacity:0;animation:rU 1.2s cubic-bezier(.16,1,.3,1) 1.2s forwards}
+    .auth-btn{width:320px;height:52px;font-size:13px;letter-spacing:2px}
+    .auth-btn:hover{letter-spacing:3px}
+    .dv{display:flex;align-items:center;gap:16px;width:320px}.dv::before,.dv::after{content:'';flex:1;height:1px;background:var(--w8)}.dv span{font-size:10px;letter-spacing:2px;color:var(--w20);text-transform:uppercase;font-family:var(--fm)}
+    .ef{display:none;flex-direction:column;align-items:center;gap:12px;width:320px}.ef.show{display:flex}
+    .inp{width:100%;height:48px;padding:0 16px;border:1px solid var(--w12);border-radius:2px;background:rgba(255,255,255,.08);color:#fff;font-family:var(--fm);font-size:13px;letter-spacing:1px;outline:none;transition:border-color .3s}.inp::placeholder{color:var(--w20)}.inp:focus{border-color:rgba(255,255,255,.3)}
+    .sub{width:100%;height:48px;border:1px solid var(--w20);border-radius:2px;background:var(--w6);color:#fff;font-family:var(--fm);font-size:12px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:all .35s}.sub:hover{background:var(--w12);border-color:rgba(255,255,255,.4)}
+    .lnk{font-family:var(--fm);font-size:10px;letter-spacing:2px;color:var(--w20);text-transform:uppercase;cursor:pointer;border:none;background:none;transition:color .3s}.lnk:hover{color:var(--w45)}
+    .err{font-family:var(--fm);font-size:11px;color:var(--r);display:none}.err.show{display:block}
+    .ok{font-family:var(--fm);font-size:11px;color:var(--g);display:none;text-align:center}.ok.show{display:block}
+    .btns{display:flex;flex-direction:column;align-items:center;gap:14px;width:320px}.btns.hide{display:none}
+    .bm{position:fixed;bottom:32px;left:50%;transform:translateX(-50%);z-index:10;font-family:var(--fm);font-size:10px;letter-spacing:3px;color:rgba(255,255,255,.12);text-transform:uppercase;opacity:0;animation:fI 2s ease 2s forwards}
+    @media(max-width:768px){.logo{font-size:40px;letter-spacing:10px}.tag{font-size:14px;letter-spacing:3px;margin-bottom:48px;padding:0 20px;text-align:center}.auth-btn,.ef,.btns,.dv{width:280px}}
+  </style>
+</head>
+<body>
+<div id="ubg"><div data-us-project="lvQHbwURkWLN3CcEaMHS" style="width:1440px;height:900px"></div></div>
+<div class="cnt">
+  <div class="logo">PULSΞ</div>
+  <div class="tag">The market feels. We read.</div>
+  <div class="auth">
+    <button class="btn auth-btn" onclick="window.location.href='dashboard.html'">
+      <svg viewBox="0 0 24 24" style="width:20px;height:20px;fill:currentColor">
+        <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm-9 3h2v2h-2V7zm0 4h2v6h-2v-6zM8 7h2v2H8V7zm0 4h2v6H8v-6zM4 7h2v2H4V7zm0 4h2v6H4v-6zm12 6h-2v-2h2v2zm0-4h-2v-2h2v2zm0-4h-2V7h2v2zm4 8h-2v-2h2v2zm0-4h-2v-2h2v2zm0-4h-2V7h2v2z"/>
+      </svg>
+      Enter Terminal
+    </button>
+  </div>
+</div>
+<div class="bm">© 2026 PULSΞ</div>
+
+<script src="config.js"></script>
+<script src="api.js"></script>
+<script src="utils.js"></script>
+<script>
+initUnicorn();
+</script>
+</body>
+</html>
