@@ -15,7 +15,7 @@
     .cnt{position:relative;z-index:10;width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none;padding-bottom:80px}
     .logo{font-family:var(--fd);font-weight:800;font-size:72px;letter-spacing:18px;color:#fff;text-indent:18px;margin-bottom:20px;opacity:0;animation:rU 1.2s cubic-bezier(.16,1,.3,1) .6s forwards}
     .tag{font-family:var(--fs);font-weight:300;font-size:18px;letter-spacing:4px;color:var(--w45);text-transform:uppercase;margin-bottom:48px;opacity:0;animation:rU 1.2s cubic-bezier(.16,1,.3,1) .9s forwards}
-    .auth{display:flex;flex-direction:column;align-items:center;gap:14px;pointer-events:auto;margin-top:240px;opacity:0;animation:rU 1.2s cubic-bezier(.16,1,.3,1) 1.2s forwards}
+    .auth{display:flex;flex-direction:column;align-items:center;gap:14px;pointer-events:auto;margin-top:calc(280px + 6vh);opacity:0;animation:rU 1.2s cubic-bezier(.16,1,.3,1) 1.2s forwards}
     .auth-btn{width:240px;height:48px;font-size:12px;letter-spacing:2px}
     .auth-btn:hover{letter-spacing:2.5px}
     
@@ -45,7 +45,7 @@
     .tw:hover{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.15)}
     .tw svg{width:16px;height:16px;fill:rgba(255,255,255,.4);transition:fill .3s}
     .tw:hover svg{fill:rgba(255,255,255,.7)}
-    @media(max-width:768px){.cnt{padding-bottom:100px}.logo{font-size:40px;letter-spacing:10px}.tag{font-size:14px;letter-spacing:3px;margin-bottom:32px;padding:0 20px;text-align:center}.auth{margin-top:40px}.auth-btn{width:280px}.modal-content{padding:24px}.bm{bottom:20px;gap:16px}.bm span{font-size:9px;letter-spacing:2px}.tw{width:28px;height:28px}.tw svg{width:14px;height:14px}}
+    @media(max-width:768px){.cnt{padding-bottom:100px}.logo{font-size:40px;letter-spacing:10px}.tag{font-size:14px;letter-spacing:3px;margin-bottom:32px;padding:0 20px;text-align:center}.auth{margin-top:calc(80px + 6vh)}.auth-btn{width:280px}.modal-content{padding:24px}.bm{bottom:20px;gap:16px}.bm span{font-size:9px;letter-spacing:2px}.tw{width:28px;height:28px}.tw svg{width:14px;height:14px}}
     @keyframes slideUp{from{transform:translateY(30px);opacity:0}to{transform:translateY(0);opacity:1}}
   </style>
 </head>
