@@ -13,6 +13,10 @@
   <link rel="stylesheet" href="style.css">
   <style>
     .app-dash{position:relative;z-index:10;width:100%;height:100%;display:grid;grid-template-columns:240px 1fr 370px;grid-template-rows:56px 1fr;grid-template-areas:"sb tb tb" "sb mn ag";overflow:hidden}
+    .app-dash.hide-agent{grid-template-columns:240px 1fr 0}
+    /* Agent */
+    .ag{grid-area:ag;border-left:1px solid var(--w8);background:rgba(0,0,0,.75);display:flex;flex-direction:column;height:100%;overflow:hidden;transition:transform .35s ease,opacity .35s ease;transform:translateX(0);width:370px;position:relative}
+    .app-dash.hide-agent .ag{transform:translateX(100%);opacity:0;pointer-events:none}
     /* Sidebar */
     .sb{grid-area:sb;border-right:1px solid var(--w8);background:rgba(0,0,0,.75);display:flex;flex-direction:column;padding:16px 0;overflow-y:auto;will-change:scroll-position}
     .ss{padding:0 16px;margin-bottom:24px}.sl{font-size:8px;letter-spacing:3px;color:var(--w20);text-transform:uppercase;margin-bottom:12px}
@@ -43,7 +47,6 @@
     .cshtag-m{font-size:8px;letter-spacing:2px;color:var(--w20);text-transform:uppercase;margin-bottom:3px}.cshtag-v{font-size:13px;color:var(--w70)}
     .sent-bar{width:80px;height:4px;background:var(--w6);border-radius:2px;margin-top:4px;overflow:hidden}.sent-fill{height:100%;border-radius:2px}
     /* Agent */
-    .ag{grid-area:ag;border-left:1px solid var(--w8);background:rgba(0,0,0,.75);display:flex;flex-direction:column;height:100%;overflow:hidden}
     .ah{padding:14px 18px;border-bottom:1px solid var(--w8);display:flex;align-items:center;justify-content:space-between;flex:0 0 auto}
     .at{font-size:9px;letter-spacing:3px;color:var(--w45);text-transform:uppercase}
     .abg{font-size:8px;letter-spacing:2px;color:var(--g);text-transform:uppercase;display:flex;align-items:center;gap:6px}.abg::before{content:'';width:5px;height:5px;border-radius:50%;background:var(--g);box-shadow:0 0 6px var(--g)}
@@ -56,12 +59,31 @@
     .aiw{padding:14px 18px;border-top:1px solid var(--w8);flex:0 0 auto}.air{display:flex;gap:8px}
     .aip{flex:1;height:42px;padding:0 14px;border:1px solid var(--w8);border-radius:2px;background:rgba(0,0,0,.3);color:#fff;font-family:var(--fm);font-size:11px;outline:none;transition:border-color .3s}.aip::placeholder{color:var(--w20)}.aip:focus{border-color:var(--w20)}
     .ais{width:42px;height:42px;border:1px solid var(--w12);border-radius:2px;background:var(--w4);color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .3s;font-size:14px}.ais:hover{background:var(--w8);border-color:var(--w20)}
+    .btn-toggle-agent{width:28px;height:28px;border:1px solid var(--w12);border-radius:2px;background:rgba(0,0,0,.3);color:var(--w45);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .3s;border:none}.btn-toggle-agent:hover{background:var(--w12);color:var(--r)}.btn-toggle-agent svg{width:14px;height:14px;fill:currentColor}
+    .btn-close-mobile{display:none}
+    .btn-open-agent{position:fixed;bottom:20px;right:20px;z-index:100;padding:12px 20px;border:1px solid rgba(0,255,163,.3);border-radius:2px;background:rgba(0,0,0,.85);backdrop-filter:blur(10px);color:var(--g);font-family:var(--fm);font-size:10px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;display:none;align-items:center;gap:8px;transition:all .3s;box-shadow:0 4px 12px rgba(0,0,0,.3)}.btn-open-agent:hover{background:rgba(0,255,163,.1);border-color:rgba(0,255,163,.5);transform:translateY(-2px);box-shadow:0 6px 16px rgba(0,255,163,.2)}.btn-open-agent svg{width:16px;height:16px;fill:currentColor}
+    .app-dash.hide-agent .btn-open-agent{display:flex}
     .qa{display:flex;gap:5px;margin-top:8px;flex-wrap:wrap}
     .qb{padding:4px 9px;border:1px solid var(--w8);border-radius:2px;background:none;color:var(--w20);font-family:var(--fm);font-size:8px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:all .25s}.qb:hover{color:var(--w70);border-color:var(--w20)}
     @media(max-width:768px){
-      .mn{padding:14px 12px}
+      .btn-close-desktop{display:none}
+      .btn-close-mobile{display:none}
+      .ag.mob-open .btn-close-mobile{display:flex}
+      .btn-open-agent{display:none!important}
+      .ag.mob-open .aip{font-size:14px;height:48px;padding:0 16px}
+      .ag.mob-open .ais{width:48px;height:48px;font-size:16px}
+      .ag.mob-open .qb{font-size:10px;padding:8px 12px}
+      .ag.mob-open .am{padding:16px}
+      .ag.mob-open .aiw{padding:16px}
+      .ni{font-size:10px;padding:8px 12px}
+      .mn{padding:14px 12px;padding-bottom:70px}
+      .sr{grid-template-columns:repeat(2,1fr);gap:8px}
       .cshtag-card{grid-template-columns:1fr 1fr;gap:10px}
       .cshtag-card>div:nth-child(n+3){display:none}
+      table{font-size:10px}
+      td,th{padding:10px 6px;font-size:10px}
+      .btn-a{height:28px!important;font-size:8px!important;padding:0 10px!important;white-space:nowrap}
+      th:last-child,td:last-child{width:60px;text-align:center}
     }
   </style>
 </head>
@@ -71,11 +93,21 @@
 <div class="app-dash">
   <!-- Topbar -->
   <header class="tb" style="grid-area:tb">
-    <div class="tb-l"><div class="tb-logo">PULSΞ</div><div class="tb-st">Agent Online</div></div>
+    <div class="tb-l">
+      <div class="tb-logo">PULSΞ</div>
+      <div class="tb-st">Agent Online</div>
+    </div>
     <div class="tb-r">
       <div class="tb-t" id="clock"></div>
+      <div class="tb-t" id="userDisplay" style="margin-right:16px"></div>
       <a class="btn btn-n" href="https://x.com/CashtagAgent" target="_blank" style="margin-right:8px">Twitter</a>
       <a class="btn btn-n" href="agents">Agents Lab</a>
+      <button class="btn btn-n" onclick="handleLogout()" style="border-color:rgba(255,68,102,.3);color:var(--r)">
+        <svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:currentColor">
+          <path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/>
+        </svg>
+        Logout
+      </button>
     </div>
   </header>
   <!-- Sidebar -->
@@ -91,9 +123,43 @@
   </nav>
   <!-- Main -->
   <main class="mn" id="mc"></main>
+  <!-- Bottom Navigation (Mobile) -->
+  <nav class="btm-nav">
+    <button class="btm-nav-btn ac" onclick="sv('overview',this)">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg>
+      Overview
+    </button>
+    <button class="btm-nav-btn" onclick="sv('markets',this)">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3.5 18.49l6-6.01 4 4L22 6.92l-1.41-1.41-7.09 7.97-4-4L2 16.99z"/></svg>
+      Markets
+    </button>
+    <button class="btm-nav-btn" onclick="sv('signals',this)">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+      Signals
+    </button>
+    <button class="btm-nav-btn" onclick="sv('cashtags',this)">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/></svg>
+      Cashtags
+    </button>
+    <button class="btm-nav-btn" onclick="toggleChat()">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z"/></svg>
+      Chat
+    </button>
+  </nav>
   <!-- Agent -->
   <aside class="ag">
-    <div class="ah"><div class="at">PULSΞ Agent</div><div class="abg">Ready</div></div>
+    <div class="ah">
+      <div class="at">PULSΞ Agent</div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <div class="abg">Ready</div>
+        <button class="btn-toggle-agent btn-close-desktop" onclick="toggleAgent()" title="Hide Agent Panel">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+        <button class="btn-toggle-agent btn-close-mobile" onclick="toggleChat()" title="Close Chat">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </div>
+    </div>
     <div class="am" id="aM"><div class="msg msg-a"><div class="mb">Welcome to PULSΞ. I'm your AI market intelligence agent.<br><br>Ask about any asset — I'll pull data, analyze momentum, and give you a verdict. Try any <strong style="color:var(--g)">$CASHTAG</strong> to start.</div><div class="mm">PULSΞ Agent</div></div></div>
     <div class="aiw">
       <div class="air"><input class="aip" id="aI" placeholder="$BTC analysis, risk check $SOL..." onkeydown="if(event.key==='Enter')send()"><button class="ais" onclick="send()">→</button></div>
@@ -107,16 +173,39 @@
       </div>
     </div>
   </aside>
+  <!-- Toggle Agent Button (shows when agent is hidden) -->
+  <button class="btn-open-agent" onclick="toggleAgent()" title="Open Agent Panel">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z"/></svg>
+    Agent
+  </button>
 </div>
 
 <script src="config.js"></script>
 <script src="api.js"></script>
 <script src="utils.js"></script>
 <script>
+// Auth check - redirect to login if no token
+const token = localStorage.getItem('pulse_token');
+const username = localStorage.getItem('pulse_username');
+
+if (!token) {
+  window.location.href = '/';
+  throw new Error('Not authenticated');
+}
+
+// Display username
+if (username) {
+  const userEl = document.getElementById('userDisplay');
+  if (userEl) {
+    userEl.textContent = username;
+    userEl.style.color = 'var(--g)';
+  }
+}
+
 initUnicorn();
 startClock(document.getElementById('clock'));
 
-let md = [], mdTop = [], cv = 'overview', lastUpdate = Date.now(), sortBy = 'market_cap', sortDir = 'desc';
+let md = [], mdTop = [], cv = 'overview', lastUpdate = Date.now(), sortBy = 'market_cap', sortDir = 'desc', agentVisible = true;
 
 async function loadMarket() {
   md = await API.market();
@@ -158,9 +247,42 @@ function rC() {
 function sv(v, el) { 
   cv = v; 
   document.querySelectorAll('.ni').forEach(n => n.classList.remove('ac')); 
+  document.querySelectorAll('.btm-nav-btn').forEach(n => n.classList.remove('ac')); 
   if (el) el.classList.add('ac'); 
   if (v === 'markets') loadTopCoins(); // Load top 100 when switching to Markets
+  document.querySelector('.ag').classList.remove('mob-open');
   rv(); 
+}
+
+function toggleChat() {
+  const ag = document.querySelector('.ag');
+  const btmNav = document.querySelector('.btm-nav');
+  const isOpen = ag.classList.contains('mob-open');
+  if (isOpen) {
+    ag.classList.remove('mob-open');
+    if (btmNav) btmNav.style.display = 'flex';
+    document.querySelectorAll('.btm-nav-btn').forEach(n => n.classList.remove('ac'));
+  } else {
+    ag.classList.add('mob-open');
+    if (btmNav) btmNav.style.display = 'none';
+    document.querySelectorAll('.btm-nav-btn').forEach(n => n.classList.remove('ac'));
+    document.querySelectorAll('.btm-nav-btn')[4].classList.add('ac');
+  }
+}
+
+function toggleAgent() {
+  agentVisible = !agentVisible;
+  const appDash = document.querySelector('.app-dash');
+  appDash.classList.toggle('hide-agent');
+}
+
+function handleLogout() {
+  // Clear auth data
+  localStorage.removeItem('pulse_token');
+  localStorage.removeItem('pulse_username');
+  
+  // Redirect to landing page
+  window.location.href = '/';
 }
 
 async function rv() {
@@ -213,8 +335,8 @@ function rMK(m) {
   
   m.innerHTML = `<div class="st stg s1">All Markets — Top ${data.length}</div>
   <div class="tw stg s2"><div class="th"><div class="tt">Full Market Data <span class="refresh-timer" style="color:var(--w20);font-size:8px;margin-left:8px">—</span></div></div>
-  ${loadingMsg || `<table><thead><tr><th>#</th><th>Asset</th><th style="${thStyle('current_price')}">Price${sortIcon('current_price')}</th><th style="${thStyle('price_change_percentage_24h_in_currency')}">24h${sortIcon('price_change_percentage_24h_in_currency')}</th><th style="${thStyle('price_change_percentage_7d_in_currency')}">7d${sortIcon('price_change_percentage_7d_in_currency')}</th><th style="${thStyle('total_volume')}">Volume${sortIcon('total_volume')}</th><th style="${thStyle('market_cap')}">MCap${sortIcon('market_cap')}</th><th></th></tr></thead><tbody>
-  ${data.map((c, i) => `<tr><td style="color:var(--w20)">${i + 1}</td><td><div class="tc"><div class="ti"><img src="${getCryptoIcon(c.symbol)}" alt="${c.symbol}" onerror="showIconFallback(this, '${c.symbol}')"></div><span class="ts">${c.symbol.toUpperCase()}</span><span class="tn" title="${c.name}">${c.name}</span></div></td><td style="color:#fff;font-weight:500">${fmt(c.current_price)}</td><td style="color:${pc(c.price_change_percentage_24h_in_currency)}">${pct(c.price_change_percentage_24h_in_currency)}</td><td style="color:${pc(c.price_change_percentage_7d_in_currency)}">${pct(c.price_change_percentage_7d_in_currency)}</td><td>${fmt(c.total_volume)}</td><td>${fmt(c.market_cap)}</td><td><button class="btn btn-a" style="height:24px;font-size:7px" onclick="qA('Risk $${c.symbol.toUpperCase()}')">Risk</button></td></tr>`).join('')}
+  ${loadingMsg || `<table><thead><tr><th>#</th><th>Asset</th><th style="${thStyle('current_price')}">Price${sortIcon('current_price')}</th><th style="${thStyle('price_change_percentage_24h_in_currency')}">24h${sortIcon('price_change_percentage_24h_in_currency')}</th><th style="${thStyle('price_change_percentage_7d_in_currency')}">7d${sortIcon('price_change_percentage_7d_in_currency')}</th><th style="${thStyle('total_volume')}">Volume${sortIcon('total_volume')}</th><th style="${thStyle('market_cap')}">MCap${sortIcon('market_cap')}</th><th>Risk</th></tr></thead><tbody>
+  ${data.map((c, i) => `<tr><td style="color:var(--w20)">${i + 1}</td><td><div class="tc"><div class="ti"><img src="${getCryptoIcon(c.symbol)}" alt="${c.symbol}" onerror="showIconFallback(this, '${c.symbol}')"></div><span class="ts">${c.symbol.toUpperCase()}</span><span class="tn" title="${c.name}">${c.name}</span></div></td><td style="color:#fff;font-weight:500">${fmt(c.current_price)}</td><td style="color:${pc(c.price_change_percentage_24h_in_currency)}">${pct(c.price_change_percentage_24h_in_currency)}</td><td style="color:${pc(c.price_change_percentage_7d_in_currency)}">${pct(c.price_change_percentage_7d_in_currency)}</td><td>${fmt(c.total_volume)}</td><td>${fmt(c.market_cap)}</td><td><button class="btn btn-a" onclick="qA('Risk $${c.symbol.toUpperCase()}')">Risk</button></td></tr>`).join('')}
   </tbody></table>`}</div>`;
 }
 
@@ -404,7 +526,35 @@ async function send() {
   API.addLocalLog('chat', { preview: txt.slice(0, 50) });
 }
 
-function qA(t) { document.getElementById('aI').value = t; send(); }
+function qA(t) {
+  // On mobile, open chat first
+  if (window.innerWidth <= 768) {
+    const ag = document.querySelector('.ag');
+    if (!ag.classList.contains('mob-open')) {
+      toggleChat();
+      // Wait for animation to complete before sending
+      setTimeout(() => {
+        document.getElementById('aI').value = t;
+        send();
+      }, 400);
+      return;
+    }
+  } else {
+    // On desktop, open agent panel if hidden
+    const appDash = document.querySelector('.app-dash');
+    if (appDash.classList.contains('hide-agent')) {
+      toggleAgent();
+      // Wait for animation to complete before sending
+      setTimeout(() => {
+        document.getElementById('aI').value = t;
+        send();
+      }, 400);
+      return;
+    }
+  }
+  document.getElementById('aI').value = t;
+  send();
+}
 
 function addMsg(t, r) {
   const c = document.getElementById('aM'), d = document.createElement('div'); d.className = `msg msg-${r === 'a' ? 'a' : 'u'}`;

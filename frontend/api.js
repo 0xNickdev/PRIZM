@@ -1,6 +1,6 @@
 // ═══════════════════════════════════════
 // PULSΞ API Client
-// Simple backend connection without auth
+// Backend connection with JWT auth
 // ═══════════════════════════════════════
 
 const API = {
@@ -8,13 +8,32 @@ const API = {
 
   // ── Internal ──
   _headers() {
-    return { 'Content-Type': 'application/json' };
+    const headers = { 'Content-Type': 'application/json' };
+    
+    // Add JWT token if available
+    const token = localStorage.getItem('pulse_token');
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+    
+    return headers;
   },
 
   async _req(method, path, body) {
     const o = { method, headers: this._headers() };
     if (body) o.body = JSON.stringify(body);
     const r = await fetch(API_BASE + path, o);
+    
+    // Handle unauthorized - logout user
+    if (r.status === 401) {
+      localStorage.removeItem('pulse_token');
+      localStorage.removeItem('pulse_email');
+      if (window.location.pathname !== '/') {
+        window.location.href = '/';
+      }
+      throw { status: 401, message: 'Session expired' };
+    }
+    
     const d = await r.json();
     if (!r.ok) throw { status: r.status, ...d };
     return d;

@@ -11,9 +11,10 @@ CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 -- ══════════════════════════════════════════════════════════
 CREATE TABLE users (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    username VARCHAR(50) UNIQUE,
     email VARCHAR(255) UNIQUE NOT NULL,
     password_hash TEXT,
-    auth_method VARCHAR(50) NOT NULL DEFAULT 'email', -- 'email', 'twitter', 'google'
+    auth_method VARCHAR(50) NOT NULL DEFAULT 'email', -- 'email', 'twitter', 'google', 'username'
     twitter_id VARCHAR(255),
     display_name VARCHAR(255),
     avatar_url TEXT,
@@ -24,6 +25,7 @@ CREATE TABLE users (
     extra_data JSONB DEFAULT '{}'::jsonb
 );
 
+CREATE INDEX idx_users_username ON users(username);
 CREATE INDEX idx_users_email ON users(email);
 CREATE INDEX idx_users_twitter_id ON users(twitter_id);
 CREATE INDEX idx_users_created_at ON users(created_at DESC);
@@ -172,7 +174,7 @@ CREATE TABLE activity_logs (
     user_id UUID REFERENCES users(id) ON DELETE SET NULL,
     email VARCHAR(255),
     action_type VARCHAR(100) NOT NULL, -- 'login', 'register', 'chat', 'mission', etc
-    ip_address INET,
+    ip_address VARCHAR(45),
     user_agent TEXT,
     extra_data JSONB DEFAULT '{}'::jsonb,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP

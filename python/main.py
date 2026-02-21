@@ -26,8 +26,8 @@ except ImportError:
     signals_cache = None
     print("⚠️  signals_cache module not available")
 
-# Import routes (removed auth_router)
-from routes import market_router, agent_router
+# Import routes
+from routes import market_router, agent_router, auth_router
 
 load_dotenv()
 
@@ -123,6 +123,7 @@ if images_path.exists():
 # Include routers
 app.include_router(market_router)
 app.include_router(agent_router)
+app.include_router(auth_router)
 
 
 # ══════════════════════════════════════════════════════════

@@ -73,9 +73,9 @@ async def get_current_user(
     
     try:
         payload = decode_token(token)
-        email: str = payload.get("email")
+        username: str = payload.get("username")
         
-        if email is None:
+        if username is None:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Invalid token payload"
@@ -87,7 +87,7 @@ async def get_current_user(
         )
     
     # Get user from database
-    result = await db.execute(select(User).where(User.email == email))
+    result = await db.execute(select(User).where(User.username == username))
     user = result.scalar_one_or_none()
     
     if user is None:
