@@ -184,6 +184,16 @@ async def test_env_debug_html():
     """Serve test_env_debug.html"""
     return FileResponse("/frontend/test_env_debug.html")
 
+@app.get("/radar")
+async def radar():
+    """Serve radar.html"""
+    return FileResponse("/frontend/radar.html")
+
+@app.get("/radar.html")
+async def radar_html():
+    """Serve radar.html"""
+    return FileResponse("/frontend/radar.html")
+
 
 # ══════════════════════════════════════════════════════════
 # HEALTH CHECK
