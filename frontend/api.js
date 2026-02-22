@@ -6,6 +6,24 @@
 const API = {
   _backendOk: null,
 
+  // ── Auth helpers (used by utils.js) ──
+  isLoggedIn() {
+    return !!localStorage.getItem('pulse_token');
+  },
+
+  getUser() {
+    const email = localStorage.getItem('pulse_email');
+    const token = localStorage.getItem('pulse_token');
+    if (!email && !token) return null;
+    return { email: email || '', method: token ? 'jwt' : 'email' };
+  },
+
+  async logout() {
+    localStorage.removeItem('pulse_token');
+    localStorage.removeItem('pulse_email');
+    return true;
+  },
+
   // ── Internal ──
   _headers() {
     const headers = { 'Content-Type': 'application/json' };
@@ -109,6 +127,25 @@ const API = {
       console.error('Cashtags API error:', e);
     }
     return { status: "error", data: [], message: "Backend unavailable" };
+  },
+
+  // ── Radar ──
+  async radarSignals(limit = 80) {
+    try {
+      if (await this._backendAvailable()) {
+        return await this._req('GET', `/api/radar/signals?limit=${limit}`);
+      }
+    } catch {}
+    return null;
+  },
+
+  async radarBreakdown(symbol) {
+    try {
+      if (await this._backendAvailable()) {
+        return await this._req('GET', `/api/radar/breakdown/${encodeURIComponent(symbol)}`);
+      }
+    } catch {}
+    return null;
   },
 
   // ── AI Agent ──

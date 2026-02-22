@@ -111,11 +111,15 @@
     <div class="tb-l"><a class="tb-logo" href="dashboard">PULSΞ</a><div class="tb-cr">Dashboard / <span>Radar</span></div></div>
     <div class="tb-r">
       <div class="tb-t" id="clock"></div>
-      <a class="btn btn-n" href="dashboard">Dashboard</a>
+      <div class="tb-t" id="userDisplay" style="margin-right:16px"></div>
+      <a class="btn btn-n" href="https://x.com/CashtagAgent" target="_blank">Twitter</a>
       <a class="btn btn-n" href="agents">Agents Lab</a>
-      <div class="pw"><button class="pb" onclick="toggleProfile()"><div class="av" id="avL">U</div><span id="pN">User</span></button>
-        <div class="pd" id="pD"><div class="pi"><div class="pi-e" id="pE">—</div><div class="pi-m" id="pM">—</div></div><button class="pit dg" onclick="doLogout()">Logout</button></div>
-      </div>
+      <button class="btn btn-n" onclick="doLogout()" style="border-color:rgba(255,68,102,.3);color:var(--r)">
+        <svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:currentColor">
+          <path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/>
+        </svg>
+        Logout
+      </button>
     </div>
   </header>
 
@@ -160,13 +164,24 @@
   </aside>
 </div>
 
-<script src="config.js"></script>
-<script src="api.js"></script>
-<script src="utils.js"></script>
+<script src="config.js?v=20260222_1"></script>
+<script src="api.js?v=20260222_1"></script>
+<script src="utils.js?v=20260222_1"></script>
 <script>
 initUnicorn();
 if (!requireAuth()) throw 'no auth';
 initProfile(); closeProfileOnClickOut(); startClock(document.getElementById('clock'));
+
+// Display username
+(() => {
+  const userEl = document.getElementById('userDisplay');
+  if (!userEl) return;
+  const email = localStorage.getItem('pulse_email') || '';
+  const username = (email ? email.split('@')[0] : '') || localStorage.getItem('pulse_username') || '';
+  if (!username) return;
+  userEl.textContent = username;
+  userEl.style.color = 'var(--g)';
+})();
 
 // ═══════════════════════════════════════
 // RADAR ENGINE
@@ -239,6 +254,72 @@ let md = [];
 async function loadMarket() {
   md = await API.market() || MOCK_MARKET;
   generateSignals();
+}
+
+async function loadRadarSignals() {
+  const d = await API.radarSignals(90);
+  if (d && Array.isArray(d.signals) && d.signals.length) {
+    applyBackendSignals(d.signals);
+    return true;
+  }
+  return false;
+}
+
+function applyBackendSignals(items) {
+  signals = [];
+  const maxR = Math.min(W, H) * 0.42;
+  const pool = items.slice(0, 120);
+  pool.forEach((it, idx) => {
+    const score = Math.max(50, Math.min(100, Number(it.score) || 50));
+    const heat = score >= 85 ? 'hot' : score >= 70 ? 'warm' : 'cold';
+    const types = Array.isArray(it.types) && it.types.length ? it.types : [it.type || 'volume'];
+    const type = it.type || types[0] || 'volume';
+
+    // Position on radar — higher score = closer to center
+    const dist = maxR * (1 - (score - 50) / 60);
+    const angle = (idx * 0.61803398875 + Math.random() * 0.2) * Math.PI * 2;
+    const targetX = cx + Math.cos(angle) * dist;
+    const targetY = cy + Math.sin(angle) * dist;
+
+    // Start from edge
+    const startAngle = Math.random() * Math.PI * 2;
+    const startDist = maxR * 1.2;
+
+    const sv = (it.meta && typeof it.meta.social_velocity === 'number') ? it.meta.social_velocity : 0;
+    const whale = (it.meta && it.meta.whale_tx) ? 'whale tx detected' : null;
+    const desc = whale ? whale : (sv > 0 ? `mention velocity +${Math.round(sv)}%` : `${type.toUpperCase()} trigger`);
+
+    signals.push({
+      id: idx + 1,
+      coin: { id: it.coin_id, symbol: it.symbol, name: it.name },
+      symbol: String(it.symbol || '').toUpperCase(),
+      name: it.name,
+      type,
+      types,
+      score,
+      heat,
+      desc,
+      price: it.price,
+      change: it.change,
+      // Animation state
+      x: cx + Math.cos(startAngle) * startDist,
+      y: cy + Math.sin(startAngle) * startDist,
+      tx: targetX,
+      ty: targetY,
+      progress: 0,
+      speed: 0.003 + Math.random() * 0.005,
+      size: 4 + (score - 55) / 8,
+      pulse: Math.random() * Math.PI * 2,
+      trail: [],
+      arrived: false,
+      time: 'live'
+    });
+  });
+
+  signals.sort((a, b) => b.score - a.score);
+  updateStats();
+  renderFeed();
+  renderHistory();
 }
 
 function generateSignals() {
@@ -582,11 +663,16 @@ function setFilter(f, el) {
 }
 
 // ── Init ──
-loadMarket().then(() => {
+loadRadarSignals().then((ok) => {
+  if (!ok) {
+    loadMarket();
+  }
   drawRadar();
-  // Re-generate new signals every 2 min
-  setInterval(() => { generateSignals(); }, 120000);
+  // Refresh radar signals every 30s (fallback keeps existing timers)
+  setInterval(loadRadarSignals, 30000);
   setInterval(loadMarket, 60000);
+  // Re-generate fallback signals every 2 min
+  setInterval(() => { if (!signals.length) generateSignals(); }, 120000);
 });
 </script>
 </body>

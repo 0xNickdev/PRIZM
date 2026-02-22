@@ -27,7 +27,7 @@ except ImportError:
     print("⚠️  signals_cache module not available")
 
 # Import routes
-from routes import market_router, agent_router, auth_router
+from routes import market_router, agent_router, auth_router, radar_router
 
 load_dotenv()
 
@@ -70,6 +70,11 @@ async def lifespan(app: FastAPI):
     whale_service = WhaleTrackerService()
     sentiment_service = SentimentService()
     derivatives_service = DerivativesService()
+
+    # Expose services via app.state for routers
+    app.state.whale_service = whale_service
+    app.state.sentiment_service = sentiment_service
+    app.state.derivatives_service = derivatives_service
     
     # Start background cleanup task
     if signals_cache:
@@ -93,6 +98,11 @@ async def lifespan(app: FastAPI):
     if derivatives_service:
         await derivatives_service.close()
 
+    # Clear state
+    app.state.whale_service = None
+    app.state.sentiment_service = None
+    app.state.derivatives_service = None
+
 
 app = FastAPI(
     title="PULSΞ Backend",
@@ -102,9 +112,15 @@ app = FastAPI(
 )
 
 # CORS
+allowed_origins_env = os.getenv("PULSE_ALLOWED_ORIGINS", "").strip()
+if allowed_origins_env:
+    allowed_origins = [o.strip() for o in allowed_origins_env.split(",") if o.strip()]
+else:
+    allowed_origins = ["*"]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=allowed_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -124,6 +140,7 @@ if images_path.exists():
 app.include_router(market_router)
 app.include_router(agent_router)
 app.include_router(auth_router)
+app.include_router(radar_router)
 
 
 # ══════════════════════════════════════════════════════════
