@@ -1,5 +1,5 @@
 -- ══════════════════════════════════════════════════════════
--- PULSΞ Database Schema - PostgreSQL
+-- PRIΖM Database Schema - PostgreSQL
 -- ══════════════════════════════════════════════════════════
 
 -- Enable extensions
