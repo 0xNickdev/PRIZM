@@ -1,4 +1,4 @@
-/* PULSΞ Shared Styles */
+/* PRIZM Shared Styles */
 :root{--w3:rgba(255,255,255,.03);--w4:rgba(255,255,255,.04);--w6:rgba(255,255,255,.06);--w8:rgba(255,255,255,.08);--w12:rgba(255,255,255,.12);--w20:rgba(255,255,255,.20);--w45:rgba(255,255,255,.45);--w70:rgba(255,255,255,.70);--g:#00ffa3;--r:#ff4466;--a:#ffbb00;--b:#6478ff;--c:#00d4ff;--fd:'Syne',sans-serif;--fs:'Cormorant Garamond',serif;--fm:'IBM Plex Mono',monospace}
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
 ::selection{background:rgba(255,255,255,.12)}
