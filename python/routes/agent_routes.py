@@ -280,6 +280,54 @@ async def run_mission(request: MissionRequest):
         except:
             pass
         
+        # Auto-fetch specific token price from CoinGecko
+        try:
+            import re
+            import httpx
+            task_lower = request.task.lower()
+            # Extract token symbol from task
+            token_match = re.search(r'\$([a-zA-Z]+)|analyze\s+([a-zA-Z]+)|analysis\s+(?:of\s+)?(?:\$)?([a-zA-Z]+)', task_lower)
+            if token_match:
+                token_name = (token_match.group(1) or token_match.group(2) or token_match.group(3)).lower()
+                SYMBOL_TO_ID = {
+                    "btc": "bitcoin", "eth": "ethereum", "sol": "solana", "doge": "dogecoin",
+                    "xrp": "ripple", "ada": "cardano", "avax": "avalanche-2", "bnb": "binancecoin",
+                    "dot": "polkadot", "matic": "matic-network", "link": "chainlink",
+                    "uni": "uniswap", "aave": "aave", "cake": "pancakeswap-token",
+                    "arb": "arbitrum", "op": "optimism", "sui": "sui", "pepe": "pepe",
+                    "wif": "dogwifcoin", "bonk": "bonk", "render": "render-token",
+                    "fet": "fetch-ai", "inj": "injective-protocol", "ton": "the-open-network",
+                    "near": "near", "atom": "cosmos", "sei": "sei-network",
+                    "jup": "jupiter-exchange-solana", "pendle": "pendle",
+                    "gmx": "gmx", "ldo": "lido-dao", "mkr": "maker",
+                    "trump": "official-trump", "ai16z": "ai16z",
+                }
+                cg_id = SYMBOL_TO_ID.get(token_name, token_name)
+                async with httpx.AsyncClient(timeout=5.0) as client:
+                    cg_resp = await client.get(
+                        f"https://api.coingecko.com/api/v3/coins/{cg_id}",
+                        params={"localization": "false", "tickers": "false", "community_data": "false", "developer_data": "false"}
+                    )
+                    if cg_resp.status_code == 200:
+                        cg = cg_resp.json()
+                        md = cg.get("market_data", {})
+                        full_task += f"\n\n━━━ LIVE TOKEN DATA (CoinGecko real-time — USE THESE PRICES) ━━━"
+                        full_task += f"\nToken: {cg.get('name', '')} ({cg.get('symbol', '').upper()})"
+                        full_task += f"\nCurrent Price: ${md.get('current_price', {}).get('usd', 0):,.6f}"
+                        full_task += f"\n24h Change: {md.get('price_change_percentage_24h', 0):+.2f}%"
+                        full_task += f"\n7d Change: {md.get('price_change_percentage_7d', 0):+.2f}%"
+                        full_task += f"\n30d Change: {md.get('price_change_percentage_30d', 0):+.2f}%"
+                        full_task += f"\nMarket Cap: ${md.get('market_cap', {}).get('usd', 0):,.0f}"
+                        full_task += f"\n24h Volume: ${md.get('total_volume', {}).get('usd', 0):,.0f}"
+                        full_task += f"\nATH: ${md.get('ath', {}).get('usd', 0):,.2f} ({md.get('ath_change_percentage', {}).get('usd', 0):.1f}% from ATH)"
+                        full_task += f"\n24h High: ${md.get('high_24h', {}).get('usd', 0):,.6f}"
+                        full_task += f"\n24h Low: ${md.get('low_24h', {}).get('usd', 0):,.6f}"
+                        full_task += f"\nCirculating Supply: {md.get('circulating_supply', 0):,.0f}"
+                        full_task += f"\nFDV: ${md.get('fully_diluted_valuation', {}).get('usd', 0):,.0f}"
+                        full_task += f"\n⚠️ USE THESE PRICES. They are real-time. Do NOT use prices from your training data.\n"
+        except Exception as token_err:
+            print(f"Token fetch error: {token_err}")
+
         # Call DeepSeek API with extended tokens
         response = deepseek_client.chat.completions.create(
             model=DEEPSEEK_MODEL,
