@@ -1,6 +1,6 @@
 """
 ═══════════════════════════════════════════════════════════════
-PULSΞ Backend - Full Python FastAPI Server
+PRIZM Backend - Full Python FastAPI Server
 Auth, Market Data, AI Agent, Whale Tracking, Sentiment, Derivatives
 ═══════════════════════════════════════════════════════════════
 """
@@ -28,6 +28,8 @@ except ImportError:
 
 # Import routes
 from routes import market_router, agent_router, auth_router, radar_router
+from routes.dexscreener_routes import router as dex_router
+from routes.blockchair_routes import router as chain_whale_router
 
 load_dotenv()
 
@@ -105,7 +107,7 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(
-    title="PULSΞ Backend",
+    title="PRIZM Backend",
     description="Full crypto market intelligence platform with AI agent",
     version="2.0.0",
     lifespan=lifespan
@@ -136,11 +138,13 @@ images_path = Path("/images")
 if images_path.exists():
     app.mount("/images", StaticFiles(directory="/images"), name="images")
 
-# Include routers
+# Include all routers
 app.include_router(market_router)
 app.include_router(agent_router)
 app.include_router(auth_router)
 app.include_router(radar_router)
+app.include_router(dex_router)
+app.include_router(chain_whale_router)
 
 
 # ══════════════════════════════════════════════════════════
@@ -148,67 +152,54 @@ app.include_router(radar_router)
 # ══════════════════════════════════════════════════════════
 @app.get("/style.css")
 async def serve_css():
-    """Serve style.css"""
     return FileResponse("/frontend/style.css", media_type="text/css")
 
 @app.get("/utils.js")
 async def serve_utils():
-    """Serve utils.js"""
     return FileResponse("/frontend/utils.js", media_type="application/javascript")
 
 @app.get("/api.js")
 async def serve_api():
-    """Serve api.js"""
     return FileResponse("/frontend/api.js", media_type="application/javascript")
 
 @app.get("/config.js")
 async def serve_config():
-    """Serve config.js"""
     return FileResponse("/frontend/config.js", media_type="application/javascript")
 
 @app.get("/")
 async def root():
-    """Serve index.html"""
     return FileResponse("/frontend/index.html")
 
 @app.get("/dashboard")
 async def dashboard():
-    """Serve dashboard.html"""
     return FileResponse("/frontend/dashboard.html")
 
 @app.get("/dashboard.html")
 async def dashboard_html():
-    """Serve dashboard.html"""
     return FileResponse("/frontend/dashboard.html")
 
 @app.get("/agents")
 async def agents():
-    """Serve agents.html"""
     return FileResponse("/frontend/agents.html")
 
 @app.get("/agents.html")
 async def agents_html():
-    """Serve agents.html"""
     return FileResponse("/frontend/agents.html")
 
 @app.get("/test_env_debug")
 async def test_env_debug():
-    """Serve test_env_debug.html"""
     return FileResponse("/frontend/test_env_debug.html")
 
 @app.get("/test_env_debug.html")
 async def test_env_debug_html():
-    """Serve test_env_debug.html"""
     return FileResponse("/frontend/test_env_debug.html")
 
 @app.get("/radar")
 async def radar():
-    """Serve radar.html"""
     return FileResponse("/frontend/radar.html")
 
 @app.get("/radar.html")
 async def radar_html():
-    """Serve radar.html"""
     return FileResponse("/frontend/radar.html")
 
 
@@ -217,7 +208,6 @@ async def radar_html():
 # ══════════════════════════════════════════════════════════
 @app.get("/health")
 async def health_check():
-    """Health check endpoint"""
     return {
         "status": "ok",
         "services": {
@@ -230,7 +220,6 @@ async def health_check():
 
 @app.get("/api/debug/env")
 async def debug_env():
-    """Debug endpoint to check environment variables"""
     import os
     
     twitter_bearer = os.getenv("TWITTER_BEARER_TOKEN")
@@ -276,14 +265,6 @@ async def get_whale_transactions(
     limit: int = 20,
     min_amount_usd: float = 1000000.0
 ):
-    """
-    Get recent whale transactions for a symbol
-    
-    Args:
-        symbol: Crypto symbol (BTC, ETH, etc)
-        limit: Max number of transactions to return
-        min_amount_usd: Minimum transaction amount in USD
-    """
     if not whale_service:
         raise HTTPException(status_code=503, detail="Whale service not available")
     
@@ -300,7 +281,6 @@ async def get_whale_transactions(
 
 @app.post("/api/whales/fetch")
 async def fetch_whale_transactions(symbols: list[str] = None):
-    """Fetch and cache latest whale transactions"""
     if not whale_service:
         raise HTTPException(status_code=503, detail="Whale service not available")
     
@@ -322,13 +302,6 @@ async def get_sentiment(
     symbol: str,
     hours: int = 24
 ):
-    """
-    Get sentiment data for a symbol
-    
-    Args:
-        symbol: Crypto symbol (BTC, ETH, etc)
-        hours: Number of hours of historical data
-    """
     if not sentiment_service:
         raise HTTPException(status_code=503, detail="Sentiment service not available")
     
@@ -344,7 +317,6 @@ async def get_sentiment(
 
 @app.post("/api/sentiment/analyze")
 async def analyze_sentiment(symbols: list[str] = None):
-    """Fetch and analyze Twitter sentiment for symbols"""
     if not sentiment_service:
         raise HTTPException(status_code=503, detail="Sentiment service not available")
     
@@ -363,12 +335,6 @@ async def analyze_sentiment(symbols: list[str] = None):
 # ══════════════════════════════════════════════════════════
 @app.get("/api/derivatives/{symbol}")
 async def get_derivatives_data(symbol: str):
-    """
-    Get derivatives data (funding rates, open interest)
-    
-    Args:
-        symbol: Crypto symbol (BTC, ETH, etc)
-    """
     if not derivatives_service:
         raise HTTPException(status_code=503, detail="Derivatives service not available")
     
@@ -381,7 +347,6 @@ async def get_derivatives_data(symbol: str):
 
 @app.post("/api/derivatives/fetch")
 async def fetch_derivatives_data(symbols: list[str] = None):
-    """Fetch and cache latest derivatives data"""
     if not derivatives_service:
         raise HTTPException(status_code=503, detail="Derivatives service not available")
     
@@ -400,13 +365,9 @@ async def fetch_derivatives_data(symbols: list[str] = None):
 # ══════════════════════════════════════════════════════════
 @app.get("/api/analysis/{symbol}")
 async def get_comprehensive_analysis(symbol: str):
-    """
-    Get comprehensive market analysis combining all data sources
-    """
     try:
         symbol = symbol.upper()
         
-        # Gather data from all services
         whales = await get_whale_transactions(symbol, limit=10, min_amount_usd=500000)
         sentiment = await get_sentiment(symbol, hours=24)
         derivatives = await get_derivatives_data(symbol)
