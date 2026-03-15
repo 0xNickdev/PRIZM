@@ -34,8 +34,8 @@ if DEEPSEEK_API_KEY:
         base_url=DEEPSEEK_BASE_URL
     )
 
-# System prompt for AI agent (English only)
-SYSTEM_PROMPT = """You are PULSΞ — an elite AI crypto market intelligence agent. You synthesize market data, whale movements, social sentiment, funding rates, and $CASHTAG activity into actionable intelligence. Sharp, precise, no fluff. Always respond in English only.
+# System prompt for AI agent
+SYSTEM_PROMPT = """You are PRIZM — an elite AI crypto market intelligence agent. You synthesize market data, whale movements, social sentiment, funding rates, and $CASHTAG activity into actionable intelligence. Sharp, precise, no fluff. Always respond in English only.
 
 ANALYSIS FRAMEWORK:
 1. VERDICT: BULLISH / BEARISH / NEUTRAL / CAUTION
@@ -48,30 +48,82 @@ ANALYSIS FRAMEWORK:
 
 Rules:
 - Always use $CASHTAG format for tickers
-- Be data-driven and precise
+- Be data-driven and precise with real numbers from the provided data
 - No marketing fluff or generic advice
 - Focus on actionable intelligence
-- Respond in English only
+- Include specific price levels, percentages, and metrics
+- Respond in English only"""
 
-Example format:
-**BULLISH** — $BTC
-Confidence: 85%
+# Multi-agent mission prompt
+MISSION_PROMPT = """You are PRIZM's multi-agent crypto intelligence orchestrator. You coordinate 5 specialized AI agents that each analyze different dimensions of the market. Provide DEEP, COMPREHENSIVE analysis — not summaries.
 
-Price broke above $68K resistance with strong volume. Whales accumulated 2,400 BTC in 24h. Social sentiment spike (+340% mentions). Funding rate neutral at 0.01%.
+For the requested asset/topic, run ALL 5 agents with detailed output:
 
-◆ Price momentum: Strong uptrend, RSI 72
-◆ Volume: Above 20D MA by 180%
-◆ Whale activity: Net inflow to exchanges -$420M
-◆ Support: $67.2K (previous resistance)
-◆ Resistance: $70K psychological
+━━━ AGENT 1: MARKET ANALYST ━━━
+Analyze in detail:
+- Current price action and trend (1H, 4H, 1D timeframes)
+- Key support and resistance levels with exact prices
+- RSI, MACD, Bollinger Bands status
+- Volume analysis vs 20-day moving average
+- Chart patterns forming (if any)
+- ATH distance and significance
 
-Risk: MEDIUM (overheated RSI)
-Outlook: Likely test $70K within 48h, possible consolidation at $72K
+━━━ AGENT 2: WHALE TRACKER ━━━
+Analyze in detail:
+- Large transactions in last 24-48h (count, direction, size)
+- Net exchange flow (inflow vs outflow)
+- Smart money wallet behavior
+- Accumulation or distribution patterns
+- Exchange reserve changes
 
-ACTION: Strong buy on dips to $67K. Set stops below $66K."""
+━━━ AGENT 3: $CASHTAG SCANNER ━━━
+Analyze in detail:
+- Mention velocity and acceleration (% change vs baseline)
+- Sentiment ratio (bullish/bearish/neutral breakdown)
+- KOL (Key Opinion Leader) activity — who is talking
+- Organic vs bot activity assessment
+- Cross-platform spread (Twitter → Telegram → Discord)
+- Narrative forming around the asset
+
+━━━ AGENT 4: RISK ASSESSOR ━━━
+Analyze in detail:
+- Funding rate current + trend (positive/negative, increasing/decreasing)
+- Open Interest changes ($ amount and %)
+- Liquidation clusters above and below current price
+- Long/Short ratio
+- Correlation with BTC (decorrelating = independent move possible)
+- Market-wide risk indicators (Fear & Greed, DXY, yields)
+
+━━━ AGENT 5: ON-CHAIN & DEFI ANALYST ━━━
+Analyze in detail:
+- TVL changes on related protocols
+- DEX volume trends
+- Stablecoin flows into/out of the network
+- Developer activity (if relevant)
+- Upcoming token unlocks or protocol upgrades
+- DeFi yield environment
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+FINAL SYNTHESIS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+After all agents report, provide:
+- VERDICT: BULLISH / BEARISH / NEUTRAL / CAUTION
+- CONFIDENCE: 0-100% (weighted by agent agreement)
+- TIMEFRAME: Primary analysis window
+- ENTRY STRATEGY: Specific price levels for entry
+- TARGETS: 2-3 take-profit levels
+- STOP LOSS: Where to cut
+- RISK/REWARD: Calculated ratio
+- KEY RISK: The #1 thing that could invalidate this thesis
+
+Use REAL data from the market context provided. Be specific with numbers.
+Every section should have 4-8 bullet points minimum.
+Total response should be comprehensive — this is a full intelligence briefing, not a summary.
+English only."""
 
 # Signal generation prompt
-SIGNAL_PROMPT = """You are an elite crypto trading signal generator for PULSΞ. Analyze market data and generate 5-7 ACTIONABLE trading signals with entry/exit strategies.
+SIGNAL_PROMPT = """You are an elite crypto trading signal generator for PRIZM. Analyze market data and generate 5-7 ACTIONABLE trading signals with entry/exit strategies.
 
 For each signal, provide:
 - action: BUY / SELL / HOLD / CLOSE
@@ -113,6 +165,8 @@ class ChatResponse(BaseModel):
 
 class MissionRequest(BaseModel):
     task: str
+    market_data: str = ""
+    context: str = ""
 
 
 class MissionResponse(BaseModel):
@@ -129,7 +183,6 @@ async def chat_with_agent(request: ChatRequest):
     if not request.message:
         raise HTTPException(status_code=400, detail="No message provided")
     
-    # Check if API key is configured
     if not deepseek_client:
         return ChatResponse(
             reply=None,
@@ -137,73 +190,108 @@ async def chat_with_agent(request: ChatRequest):
         )
     
     try:
-        # Combine message with context
         full_message = request.message
         if request.context:
             full_message += f"\n\nMarket Data:\n{request.context}"
         
-        # Call DeepSeek API
         response = deepseek_client.chat.completions.create(
             model=DEEPSEEK_MODEL,
             messages=[
                 {"role": "system", "content": SYSTEM_PROMPT},
                 {"role": "user", "content": full_message}
             ],
-            max_tokens=1024,
+            max_tokens=2048,
             temperature=0.7
         )
         
-        # Extract reply
         reply = response.choices[0].message.content
-        
         return ChatResponse(reply=reply, error=None)
     
     except Exception as e:
-        return ChatResponse(
-            reply=None,
-            error=str(e)
-        )
+        return ChatResponse(reply=None, error=str(e))
 
 
 @router.post("/mission", response_model=MissionResponse)
 async def run_mission(request: MissionRequest):
     """
-    Multi-agent mission
-    Complex analysis with multiple specialized agents
+    Multi-agent mission — full comprehensive analysis
     """
     
     if not request.task:
         raise HTTPException(status_code=400, detail="No task provided")
     
-    # Check if API key is configured
     if not deepseek_client:
         return MissionResponse(synthesis=None)
     
     try:
-        # Multi-agent system prompt
-        multi_agent_prompt = """You are a multi-agent crypto orchestrator. Analyze as if 4 agents contributed: 
+        # Build full context with market data
+        full_task = request.task
         
-1. Market Analyst: Price action, volume, technical indicators
-2. Whale Tracker: Large transactions, exchange flows, whale behavior
-3. $Cashtag Scanner: Social sentiment, mentions velocity, influencer activity
-4. Risk Assessor: Market structure, funding rates, liquidation levels
-
-Give each agent a section with their analysis, then provide a final SYNTHESIS with clear verdict and action. Be specific with data and numbers. English only."""
+        # Add market data if provided
+        if request.market_data:
+            try:
+                import json
+                coins = json.loads(request.market_data)
+                
+                market_context = "\n\n━━━ LIVE MARKET DATA ━━━\n"
+                
+                total_mcap = sum(c.get('market_cap', 0) for c in coins)
+                total_volume = sum(c.get('total_volume', 0) for c in coins)
+                avg_24h = sum(c.get('price_change_percentage_24h_in_currency', 0) for c in coins) / max(len(coins), 1)
+                
+                market_context += f"Total Market Cap: ${total_mcap/1e9:.1f}B\n"
+                market_context += f"24h Volume: ${total_volume/1e9:.1f}B\n"
+                market_context += f"Average 24h Change: {avg_24h:+.2f}%\n\n"
+                
+                market_context += "Asset Details:\n"
+                for c in coins[:15]:
+                    sym = c.get('symbol', '').upper()
+                    price = c.get('current_price', 0)
+                    ch_1h = c.get('price_change_percentage_1h_in_currency', 0)
+                    ch_24h = c.get('price_change_percentage_24h_in_currency', 0)
+                    ch_7d = c.get('price_change_percentage_7d_in_currency', 0)
+                    vol = c.get('total_volume', 0) / 1e9
+                    mcap = c.get('market_cap', 0) / 1e9
+                    ath = c.get('ath', 0)
+                    ath_dist = c.get('ath_change_percentage', 0)
+                    high = c.get('high_24h', 0)
+                    low = c.get('low_24h', 0)
+                    market_context += f"${sym}: ${price:,.4f} | 1h: {ch_1h:+.2f}% | 24h: {ch_24h:+.2f}% | 7d: {ch_7d:+.2f}% | Vol: ${vol:.2f}B | MCap: ${mcap:.1f}B | ATH: ${ath:,.2f} ({ath_dist:.1f}%) | 24h Range: ${low:,.2f}-${high:,.2f}\n"
+                
+                full_task += market_context
+            except:
+                if request.market_data:
+                    full_task += f"\n\nMarket Data:\n{request.market_data[:2000]}"
         
-        # Call DeepSeek API
+        # Add additional context
+        if request.context:
+            full_task += f"\n\nAdditional Context:\n{request.context}"
+        
+        # Try to get Fear & Greed Index
+        try:
+            import httpx
+            async with httpx.AsyncClient(timeout=3.0) as client:
+                fng_resp = await client.get('https://api.alternative.me/fng/')
+                if fng_resp.status_code == 200:
+                    fng_data = fng_resp.json()
+                    fng_value = fng_data['data'][0]['value']
+                    fng_class = fng_data['data'][0]['value_classification']
+                    full_task += f"\n\nFear & Greed Index: {fng_value}/100 ({fng_class})"
+        except:
+            pass
+        
+        # Call DeepSeek API with extended tokens
         response = deepseek_client.chat.completions.create(
             model=DEEPSEEK_MODEL,
             messages=[
-                {"role": "system", "content": multi_agent_prompt},
-                {"role": "user", "content": request.task}
+                {"role": "system", "content": MISSION_PROMPT},
+                {"role": "user", "content": full_task}
             ],
-            max_tokens=2048,
+            max_tokens=4096,
             temperature=0.8
         )
         
-        # Extract synthesis
         synthesis = response.choices[0].message.content
-        
         return MissionResponse(synthesis=synthesis)
     
     except Exception as e:
@@ -211,9 +299,9 @@ Give each agent a section with their analysis, then provide a final SYNTHESIS wi
 
 
 class Signal(BaseModel):
-    action: str  # BUY / SELL / HOLD / CLOSE
+    action: str
     ticker: str
-    confidence: int  # 0-100
+    confidence: int
     entry: float
     target: float
     stop: float
@@ -236,7 +324,6 @@ async def generate_signals(request: SignalsRequest):
     Generate AI trading signals with entry/exit strategies
     """
     
-    # Check if API key is configured
     if not deepseek_client:
         return SignalsResponse(
             signals=None,
@@ -246,20 +333,16 @@ async def generate_signals(request: SignalsRequest):
     try:
         import json
         
-        # Parse market data if provided
         market_context = "Current crypto market overview:\n\n"
         
         if request.market_data:
             try:
-                # Try to parse as JSON array
                 coins = json.loads(request.market_data)
                 
-                # Calculate aggregate metrics
                 total_mcap = sum(c.get('market_cap', 0) for c in coins)
                 total_volume = sum(c.get('total_volume', 0) for c in coins)
                 avg_24h = sum(c.get('price_change_percentage_24h_in_currency', 0) for c in coins) / len(coins)
                 
-                # Find top movers
                 top_gainers = sorted(coins, key=lambda x: x.get('price_change_percentage_24h_in_currency', 0), reverse=True)[:3]
                 top_losers = sorted(coins, key=lambda x: x.get('price_change_percentage_24h_in_currency', 0))[:3]
                 
@@ -275,7 +358,6 @@ async def generate_signals(request: SignalsRequest):
                 for c in top_losers:
                     market_context += f"- {c.get('symbol', '').upper()}: ${c.get('current_price', 0):.4f} ({c.get('price_change_percentage_24h_in_currency', 0):+.2f}%), Vol: ${c.get('total_volume', 0)/1e9:.2f}B\n"
                 
-                # Add detailed coin data
                 market_context += "\n\nTop 8 Assets (detailed):\n"
                 for c in coins[:8]:
                     sym = c.get('symbol', '').upper()
@@ -289,7 +371,6 @@ async def generate_signals(request: SignalsRequest):
                     market_context += f"{sym}: ${price:.4f} | 1h: {ch_1h:+.2f}% | 24h: {ch_24h:+.2f}% | 7d: {ch_7d:+.2f}% | Vol: ${vol:.2f}B | MCap: ${mcap:.1f}B | ATH Δ: {ath_dist:.1f}%\n"
                 
             except:
-                # Fallback if parsing fails
                 market_context += request.market_data[:1000]
         
         # Try to get Fear & Greed Index
@@ -307,7 +388,6 @@ async def generate_signals(request: SignalsRequest):
         
         prompt = f"{market_context}\n\nGenerate 5-7 trading signals with entry/exit strategies based on this data."
         
-        # Call DeepSeek API
         response = deepseek_client.chat.completions.create(
             model=DEEPSEEK_MODEL,
             messages=[
@@ -318,19 +398,15 @@ async def generate_signals(request: SignalsRequest):
             temperature=0.7
         )
         
-        # Parse response
         content = response.choices[0].message.content
         
-        # Try to extract JSON array from response
         try:
-            # Look for JSON array in the response
             start = content.find('[')
             end = content.rfind(']') + 1
             if start >= 0 and end > start:
                 signals_data = json.loads(content[start:end])
                 signals = [Signal(**sig) for sig in signals_data]
                 
-                # Save signals to cache
                 if signals_cache and signals:
                     try:
                         generation_id = str(uuid.uuid4())
@@ -345,117 +421,60 @@ async def generate_signals(request: SignalsRequest):
             print(f"Signal parsing error: {parse_err}")
             print(f"AI Response: {content[:500]}")
         
-        # Fallback: return empty if parsing failed
         return SignalsResponse(signals=[], error=None)
     
     except Exception as e:
-        return SignalsResponse(
-            signals=None,
-            error=str(e)
-        )
+        return SignalsResponse(signals=None, error=str(e))
 
 
 @router.get("/signals/cached")
 async def get_cached_signals(hours: int = 24, limit: int = 50):
-    """
-    Get cached signals from database
-    
-    Args:
-        hours: Get signals from last N hours (default: 24)
-        limit: Maximum number of signals to return
-    """
     if not signals_cache:
         return {"signals": [], "error": "Cache not available"}
-    
     try:
         signals = signals_cache.get_recent_signals(hours=hours, limit=limit)
-        return {
-            "signals": signals,
-            "count": len(signals),
-            "hours": hours
-        }
+        return {"signals": signals, "count": len(signals), "hours": hours}
     except Exception as e:
-        return {
-            "signals": [],
-            "error": str(e)
-        }
+        return {"signals": [], "error": str(e)}
 
 
 @router.get("/signals/latest")
 async def get_latest_signals(limit: int = 20):
-    """
-    Get signals from the most recent generation
-    """
     if not signals_cache:
         return {"signals": [], "error": "Cache not available"}
-    
     try:
         signals = signals_cache.get_latest_generation_signals(limit=limit)
-        return {
-            "signals": signals,
-            "count": len(signals)
-        }
+        return {"signals": signals, "count": len(signals)}
     except Exception as e:
-        return {
-            "signals": [],
-            "error": str(e)
-        }
+        return {"signals": [], "error": str(e)}
 
 
 @router.get("/signals/ticker/{ticker}")
 async def get_ticker_signals(ticker: str, hours: int = 24):
-    """
-    Get signals for specific ticker
-    """
     if not signals_cache:
         return {"signals": [], "error": "Cache not available"}
-    
     try:
         signals = signals_cache.get_signals_by_ticker(ticker, hours=hours)
-        return {
-            "ticker": ticker.upper(),
-            "signals": signals,
-            "count": len(signals),
-            "hours": hours
-        }
+        return {"ticker": ticker.upper(), "signals": signals, "count": len(signals), "hours": hours}
     except Exception as e:
-        return {
-            "signals": [],
-            "error": str(e)
-        }
+        return {"signals": [], "error": str(e)}
 
 
 @router.delete("/signals/cleanup")
 async def cleanup_signals(hours: int = 168):
-    """
-    Manually trigger cleanup of old signals
-    Default: Delete signals older than 7 days (168 hours)
-    """
     if not signals_cache:
         return {"deleted": 0, "error": "Cache not available"}
-    
     try:
         deleted = signals_cache.cleanup_old_signals(hours=hours)
-        return {
-            "deleted": deleted,
-            "hours": hours,
-            "message": f"Deleted {deleted} signals older than {hours} hours"
-        }
+        return {"deleted": deleted, "hours": hours, "message": f"Deleted {deleted} signals older than {hours} hours"}
     except Exception as e:
-        return {
-            "deleted": 0,
-            "error": str(e)
-        }
+        return {"deleted": 0, "error": str(e)}
 
 
 @router.get("/signals/stats")
 async def get_signals_stats():
-    """
-    Get database statistics
-    """
     if not signals_cache:
         return {"error": "Cache not available"}
-    
     try:
         stats = signals_cache.get_db_stats()
         return stats
