@@ -177,8 +177,8 @@ initProfile(); closeProfileOnClickOut(); startClock(document.getElementById('clo
 (() => {
   const userEl = document.getElementById('userDisplay');
   if (!userEl) return;
-  const email = localStorage.getItem('pulse_email') || '';
-  const username = (email ? email.split('@')[0] : '') || localStorage.getItem('pulse_username') || '';
+  const email = localStorage.getItem('prizm_email') || '';
+  const username = (email ? email.split('@')[0] : '') || localStorage.getItem('prizm_username') || '';
   if (!username) return;
   userEl.textContent = username;
   userEl.style.color = 'var(--g)';
