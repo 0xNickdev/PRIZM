@@ -240,7 +240,7 @@ async function launch() {
   uP(5, 'Decomposing task...'); await dl(800);
 
   // Try real API mission
-  const realSynth = API.mission(task, window._marketData || []); // fire async
+  const realSynth = API.mission(task, marketData); // fire async
 
   const sc = document.getElementById('subA');
   const results = [];
