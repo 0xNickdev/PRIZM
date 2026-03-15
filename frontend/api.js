@@ -165,10 +165,13 @@ const API = {
     return null; // Caller uses fallback
   },
 
-  async mission(task) {
+  async mission(task, marketData = []) {
     try {
       if (await this._backendAvailable()) {
-        const d = await this._req('POST', '/api/agent/mission', { task });
+        const d = await this._req('POST', '/api/agent/mission', { 
+          task, 
+          market_data: JSON.stringify(marketData) 
+        });
         return d.synthesis;
       }
     } catch {}
